@@ -1,0 +1,43 @@
+{
+  "name": "japanese-shadowing-player",
+  "version": "1.0.0",
+  "description": "Japanese Shadowing Player - A desktop audio player for shadowing practice",
+  "main": "dist-electron/main.js",
+  "scripts": {
+    "dev:electron": "tsc -p tsconfig.node.json && electron .",
+    "dev:vite": "vite",
+    "dev": "tsc -p tsconfig.node.json && concurrently --kill-others \"vite\" \"electron .\"",
+    "build": "tsc && vite build && tsc -p tsconfig.node.json",
+    "build:vite": "vite build",
+    "build:electron": "tsc -p tsconfig.node.json",
+    "build:all": "npm run build:vite && npm run build:electron",
+    "preview": "vite preview",
+    "package": "npm run build:all && electron-builder",
+    "package:win": "npm run build:all && electron-builder --win"
+  },
+  "keywords": [
+    "japanese",
+    "shadowing",
+    "audio",
+    "player"
+  ],
+  "author": "",
+  "license": "ISC",
+  "type": "commonjs",
+  "dependencies": {
+    "react": "^19.2.7",
+    "react-dom": "^19.2.7"
+  },
+  "devDependencies": {
+    "@tailwindcss/vite": "^4.3.2",
+    "@types/react": "^19.2.17",
+    "@types/react-dom": "^19.2.3",
+    "@vitejs/plugin-react": "^6.0.3",
+    "concurrently": "^10.0.3",
+    "electron": "^43.1.1",
+    "electron-builder": "^26.15.3",
+    "tailwindcss": "^4.3.2",
+    "typescript": "^7.0.2",
+    "vite": "^8.1.4"
+  }
+}
