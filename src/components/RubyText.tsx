@@ -1,18 +1,17 @@
-import React from 'react';
+
 import type { SubtitlePart, DisplayMode } from '../types';
 
 interface RubyTextProps {
   parts: SubtitlePart[];
   displayMode: DisplayMode;
-  showFurigana: boolean;
 }
 
-export function RubyText({ parts, displayMode, showFurigana }: RubyTextProps) {
+export function RubyText({ parts, displayMode }: RubyTextProps) {
   return (
     <span className="ruby-text">
       {parts.map((part, i) => {
         if (part.type === 'ruby') {
-          const showRuby = showFurigana && part.ruby;
+          const showRuby = part.ruby != null;
           return (
             <ruby key={i} className="ruby">
               {part.text}

@@ -1,4 +1,4 @@
-import React, { useCallback, useRef } from 'react';
+import { useCallback, useRef } from 'react';
 import { usePlayer } from '../context/PlayerContext';
 
 function formatTime(seconds: number): string {

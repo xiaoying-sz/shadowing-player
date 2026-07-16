@@ -35,6 +35,21 @@ The system SHALL allow the user to adjust the delay between playback start and r
 - **THEN** system constrains delay between minimum 200ms and maximum 1000ms
 - **THEN** default value is 400ms
 
+### Requirement: Recording quality toggle
+The system SHALL allow the user to switch between standard and high-quality recording modes.
+
+#### Scenario: Standard quality (default)
+- **WHEN** recording quality is set to "标准"
+- **THEN** system uses 44.1kHz sample rate with echo cancellation and noise suppression enabled
+- **THEN** suitable for typical environments with background noise
+
+#### Scenario: High quality
+- **WHEN** recording quality is set to "高质量"
+- **THEN** system uses 48kHz sample rate, mono channel, 128kbps Opus bitrate
+- **THEN** echo cancellation, noise suppression, and auto gain control are disabled
+- **THEN** requires a quiet recording environment
+- **THEN** quality setting takes effect on the next recording start
+
 ### Requirement: Original audio volume control during recording
 The system SHALL allow the user to adjust the volume of the original audio during shadow recording.
 
@@ -48,11 +63,12 @@ The system SHALL clearly indicate the current recording state.
 
 #### Scenario: Visual state changes
 - **WHEN** system is idle (not recording)
-- **THEN** button shows "Start Shadow" with idle icon
+- **THEN** button shows "开始录音" with start icon
 
 - **WHEN** recording is active
-- **THEN** button shows "Stop" with recording icon (red dot)
-- **THEN** system shows a pulsing recording indicator and elapsed recording time
+- **THEN** button shows "停止录音" with recording icon (red dot)
+- **THEN** system shows a pulsing recording indicator "录音中..."
 
 - **WHEN** recording has stopped with data
-- **THEN** system shows export options alongside the recorded file duration
+- **THEN** system shows format selector (WebM/WAV/MP3/M4A) and export button
+- **THEN** the export format defaults to WebM

@@ -1,10 +1,31 @@
 import { app, BrowserWindow, ipcMain, dialog } from 'electron';
 import path from 'path';
 import fs from 'fs';
+import ffmpeg from 'fluent-ffmpeg';
+import ffmpegStaticPath from 'ffmpeg-static';
+
+// In production (packaged app), ffmpeg-static binary may be in extraResources
+let ffmpegBinaryPath = ffmpegStaticPath || '';
+if (!ffmpegBinaryPath || !fs.existsSync(ffmpegBinaryPath)) {
+  const resPath = path.join(process.resourcesPath, 'ffmpeg-static', 'ffmpeg.exe');
+  if (fs.existsSync(resPath)) {
+    ffmpegBinaryPath = resPath;
+  }
+}
+if (ffmpegBinaryPath) {
+  ffmpeg.setFfmpegPath(ffmpegBinaryPath);
+}
 
 let mainWindow: BrowserWindow | null = null;
+let lastAudioDir: string | null = null;
 
 const isDev = !app.isPackaged;
+
+const AUDIO_EXTENSIONS = new Set(['.mp3', '.m4a', '.wav', '.ogg', '.flac']);
+
+function isAudioFile(filePath: string): boolean {
+  return AUDIO_EXTENSIONS.has(path.extname(filePath).toLowerCase());
+}
 
 function createWindow() {
   mainWindow = new BrowserWindow({
@@ -59,6 +80,7 @@ ipcMain.handle('window:isMaximized', () => {
 ipcMain.handle('dialog:openAudio', async () => {
   const result = await dialog.showOpenDialog(mainWindow!, {
     title: 'Select Audio File',
+    defaultPath: lastAudioDir || undefined,
     filters: [
       { name: 'Audio Files', extensions: ['mp3', 'm4a', 'wav', 'ogg', 'flac'] },
       { name: 'All Files', extensions: ['*'] },
@@ -71,6 +93,7 @@ ipcMain.handle('dialog:openAudio', async () => {
   }
 
   const filePath = result.filePaths[0];
+  lastAudioDir = path.dirname(filePath);
   return {
     path: filePath,
     name: path.basename(filePath),
@@ -80,6 +103,7 @@ ipcMain.handle('dialog:openAudio', async () => {
 ipcMain.handle('dialog:openSubtitle', async () => {
   const result = await dialog.showOpenDialog(mainWindow!, {
     title: 'Select Subtitle File',
+    defaultPath: lastAudioDir || undefined,
     filters: [
       { name: 'Subtitle Files', extensions: ['srt', 'vtt'] },
       { name: 'All Files', extensions: ['*'] },
@@ -105,7 +129,10 @@ ipcMain.handle('dialog:saveAudio', async (_event, defaultName: string) => {
     title: 'Export Audio',
     defaultPath: defaultName,
     filters: [
+      { name: 'WebM Audio (原始)', extensions: ['webm'] },
       { name: 'WAV Audio', extensions: ['wav'] },
+      { name: 'MP3 Audio', extensions: ['mp3'] },
+      { name: 'M4A Audio', extensions: ['m4a'] },
     ],
   });
 
@@ -114,6 +141,43 @@ ipcMain.handle('dialog:saveAudio', async (_event, defaultName: string) => {
   }
 
   return result.filePath;
+});
+
+// IPC: Folder browser
+ipcMain.handle('dialog:openFolder', async () => {
+  const result = await dialog.showOpenDialog(mainWindow!, {
+    title: 'Select Audio Folder',
+    defaultPath: lastAudioDir || undefined,
+    properties: ['openDirectory'],
+  });
+
+  if (result.canceled || result.filePaths.length === 0) {
+    return null;
+  }
+
+  const folderPath = result.filePaths[0];
+  lastAudioDir = folderPath;
+  return folderPath;
+});
+
+ipcMain.handle('fs:scanAudioFolder', async (_event, folderPath: string) => {
+  try {
+    const files: Array<{ path: string; name: string }> = [];
+    const entries = fs.readdirSync(folderPath, { withFileTypes: true });
+    for (const entry of entries) {
+      if (entry.isFile()) {
+        const fullPath = path.join(folderPath, entry.name);
+        if (isAudioFile(fullPath)) {
+          files.push({ path: fullPath, name: entry.name });
+        }
+      }
+    }
+    // Sort by name
+    files.sort((a, b) => a.name.localeCompare(b.name));
+    return files;
+  } catch {
+    return [];
+  }
 });
 
 // IPC: File system helpers
@@ -150,6 +214,34 @@ ipcMain.handle('fs:writeFile', async (_event, filePath: string, data: Buffer) =>
     fs.writeFileSync(filePath, data);
     return true;
   } catch {
+    return false;
+  }
+});
+
+ipcMain.handle('fs:convertAudio', async (_event, { data, savePath, format }: { data: number[]; savePath: string; format: string }) => {
+  try {
+    const tmpWav = path.join(app.getPath('temp'), `shadow-temp-${Date.now()}.wav`);
+    fs.writeFileSync(tmpWav, Buffer.from(data));
+
+    await new Promise<void>((resolve, reject) => {
+      const cmd = ffmpeg(tmpWav);
+      if (format === 'mp3') {
+        cmd.audioCodec('libmp3lame').audioBitrate(128);
+      } else if (format === 'm4a') {
+        cmd.audioCodec('aac').audioBitrate(128);
+      } else {
+        cmd.audioCodec('copy');
+      }
+      cmd
+        .on('end', () => resolve())
+        .on('error', (err: Error) => reject(err))
+        .save(savePath);
+    });
+
+    try { fs.unlinkSync(tmpWav); } catch { /* ignore */ }
+    return true;
+  } catch (err) {
+    console.error('Audio conversion failed:', err);
     return false;
   }
 });

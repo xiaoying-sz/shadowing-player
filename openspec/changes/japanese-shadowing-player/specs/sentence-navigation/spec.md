@@ -24,12 +24,13 @@ The system SHALL move playback to the start of the next subtitle sentence when t
 - **WHEN** user is at the last sentence and triggers next sentence
 - **THEN** system seeks to the start of the last sentence (no wrap-around)
 
-### Requirement: Click subtitle to seek
-The system SHALL allow the user to click on any displayed subtitle sentence to seek to its start time.
+### Requirement: Click subtitle to seek and play
+The system SHALL allow the user to click on any displayed subtitle sentence to seek to its start time and begin playback.
 
 #### Scenario: Click on visible sentence
 - **WHEN** user clicks on a subtitle sentence in the panel
 - **THEN** system seeks audio to that sentence's start time
+- **THEN** system starts playback automatically
 - **THEN** system highlights the clicked sentence as current
 
 ### Requirement: Highlight current sentence

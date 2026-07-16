@@ -1,4 +1,4 @@
-import React from 'react';
+
 import { usePlayer } from '../context/PlayerContext';
 import { SPEED_PRESETS } from '../types';
 

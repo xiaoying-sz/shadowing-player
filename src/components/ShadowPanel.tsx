@@ -1,5 +1,8 @@
-import React from 'react';
+import { useState } from 'react';
 import { usePlayer } from '../context/PlayerContext';
+import { recorderService } from '../services/RecorderService';
+
+type ExportFormat = 'webm' | 'wav' | 'mp3' | 'm4a';
 
 export function ShadowPanel() {
   const {
@@ -14,6 +17,8 @@ export function ShadowPanel() {
     exportRecording,
     isLoaded,
   } = usePlayer();
+
+  const [exportFormat, setExportFormat] = useState<ExportFormat>('webm');
 
   return (
     <div className="rounded-lg bg-gray-800/80 border border-gray-700 p-4">
@@ -33,7 +38,7 @@ export function ShadowPanel() {
             disabled={!isLoaded}
             className={`flex items-center gap-1.5 rounded-lg px-4 py-2 text-sm font-medium transition-all ${
               isLoaded
-                ? 'bg-red-600 text-white hover:bg-red-500'
+                ? 'bg-[#007d55] text-white hover:bg-[#006b48]'
                 : 'bg-gray-700 text-gray-500 cursor-not-allowed'
             }`}
           >
@@ -61,31 +66,53 @@ export function ShadowPanel() {
         )}
 
         {recordingState === 'done' && (
-          <div className="flex items-center gap-2">
-            <button
-              onClick={() => exportRecording('voice')}
-              className="rounded-lg bg-blue-600 px-4 py-2 text-sm font-medium text-white hover:bg-blue-500 transition-colors"
-            >
-              导出纯人声
-            </button>
-            <button
-              onClick={() => exportRecording('mixed')}
-              className="rounded-lg bg-emerald-600 px-4 py-2 text-sm font-medium text-white hover:bg-emerald-500 transition-colors"
-            >
-              导出混合对比
-            </button>
-            <button
-              onClick={cancelRecording}
-              className="rounded-lg px-3 py-2 text-sm text-gray-400 hover:text-white transition-colors"
-            >
-              清除
-            </button>
+          <div className="flex flex-col gap-2">
+            <div className="flex items-center gap-2">
+              <span className="text-xs text-gray-400">导出格式:</span>
+              <button onClick={() => setExportFormat('webm')}
+                className={`px-2 py-0.5 text-xs rounded transition-all ${exportFormat === 'webm' ? 'bg-blue-600 text-white' : 'text-gray-400 hover:text-white hover:bg-gray-700'}`}>WebM</button>
+              <button onClick={() => setExportFormat('wav')}
+                className={`px-2 py-0.5 text-xs rounded transition-all ${exportFormat === 'wav' ? 'bg-blue-600 text-white' : 'text-gray-400 hover:text-white hover:bg-gray-700'}`}>WAV</button>
+              <button onClick={() => setExportFormat('mp3')}
+                className={`px-2 py-0.5 text-xs rounded transition-all ${exportFormat === 'mp3' ? 'bg-blue-600 text-white' : 'text-gray-400 hover:text-white hover:bg-gray-700'}`}>MP3</button>
+              <button onClick={() => setExportFormat('m4a')}
+                className={`px-2 py-0.5 text-xs rounded transition-all ${exportFormat === 'm4a' ? 'bg-blue-600 text-white' : 'text-gray-400 hover:text-white hover:bg-gray-700'}`}>M4A</button>
+            </div>
+            <div className="flex items-center gap-2">
+              <button
+                onClick={() => exportRecording(exportFormat)}
+                className="rounded-lg bg-blue-600 px-4 py-2 text-sm font-medium text-white hover:bg-blue-500 transition-colors"
+              >
+                导出 ({exportFormat.toUpperCase()})
+              </button>
+              <button
+                onClick={cancelRecording}
+                className="rounded-lg px-3 py-2 text-sm text-gray-400 hover:text-white transition-colors"
+              >
+                清除
+              </button>
+            </div>
           </div>
         )}
       </div>
 
       {/* Settings */}
       <div className="space-y-2">
+        <div className="flex items-center gap-3">
+          <label className="text-xs text-gray-400 w-20">录音质量</label>
+          <button
+            onClick={() => recorderService.setHighQuality(false)}
+            className={`px-2 py-0.5 text-xs rounded transition-all ${!recorderService.highQuality ? 'bg-blue-600 text-white' : 'text-gray-400 hover:text-white hover:bg-gray-700'}`}
+          >
+            标准
+          </button>
+          <button
+            onClick={() => recorderService.setHighQuality(true)}
+            className={`px-2 py-0.5 text-xs rounded transition-all ${recorderService.highQuality ? 'bg-blue-600 text-white' : 'text-gray-400 hover:text-white hover:bg-gray-700'}`}
+          >
+            高质量
+          </button>
+        </div>
         <div className="flex items-center gap-3">
           <label className="text-xs text-gray-400 w-20">延迟: {recordingDelay}ms</label>
           <input

@@ -9,9 +9,12 @@ export interface ElectronAPI {
   openAudio: () => Promise<FileResult | null>;
   openSubtitle: () => Promise<SubtitleFileResult | null>;
   saveAudio: (defaultName: string) => Promise<string | null>;
+  openFolder: () => Promise<string | null>;
+  scanAudioFolder: (folderPath: string) => Promise<FileResult[]>;
   readFile: (filePath: string) => Promise<string | null>;
   readAudioFile: (filePath: string) => Promise<{ base64: string; mime: string; fileName: string } | null>;
   writeFile: (filePath: string, data: Buffer) => Promise<boolean>;
+  convertAudio: (data: number[], savePath: string, format: string) => Promise<boolean>;
   getAutoSubtitle: (audioPath: string) => Promise<SubtitleFileResult | null>;
   onMaximizeChange: (callback: (isMaximized: boolean) => void) => void;
 }
@@ -78,4 +81,13 @@ export type RecordingState = 'idle' | 'recording' | 'done';
 export interface RecordingResult {
   blob: Blob;
   duration: number;
+}
+
+// ------------------------
+// Playlist
+// ------------------------
+export interface PlaylistItem {
+  path: string;
+  name: string;
+  index: number;
 }

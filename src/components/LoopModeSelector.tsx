@@ -1,4 +1,4 @@
-import React from 'react';
+
 import { usePlayer } from '../context/PlayerContext';
 
 const LOOP_LABELS: Record<string, string> = {

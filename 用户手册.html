@@ -1,0 +1,310 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>影子跟读播放器 - 用户手册</title>
+<style>
+  :root {
+    --bg: #0f172a;
+    --bg2: #1e293b;
+    --text: #e2e8f0;
+    --text2: #94a3b8;
+    --accent: #3b82f6;
+    --accent2: #10b981;
+    --border: #334155;
+  }
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  body {
+    font-family: -apple-system, "Segoe UI", "Noto Sans SC", sans-serif;
+    background: var(--bg);
+    color: var(--text);
+    line-height: 1.7;
+    max-width: 900px;
+    margin: 0 auto;
+    padding: 40px 24px 80px;
+  }
+  h1 { font-size: 2em; margin-bottom: 8px; }
+  h1 + p { color: var(--text2); margin-bottom: 32px; }
+  h2 {
+    font-size: 1.4em;
+    margin: 40px 0 16px;
+    padding-bottom: 8px;
+    border-bottom: 1px solid var(--border);
+    color: var(--accent);
+  }
+  h3 { font-size: 1.1em; margin: 24px 0 12px; color: var(--accent2); }
+  p, li { color: var(--text2); }
+  ul, ol { padding-left: 20px; margin: 8px 0 16px; }
+  li { margin: 4px 0; }
+  code {
+    background: var(--bg2);
+    padding: 2px 6px;
+    border-radius: 4px;
+    font-size: 0.9em;
+    color: #f1d592;
+  }
+  pre {
+    background: var(--bg2);
+    padding: 16px;
+    border-radius: 8px;
+    overflow-x: auto;
+    margin: 12px 0;
+    font-size: 0.9em;
+    border: 1px solid var(--border);
+  }
+  table {
+    width: 100%;
+    border-collapse: collapse;
+    margin: 16px 0;
+    font-size: 0.95em;
+  }
+  th, td {
+    padding: 10px 14px;
+    text-align: left;
+    border-bottom: 1px solid var(--border);
+  }
+  th { background: var(--bg2); color: var(--text); font-weight: 600; }
+  td { color: var(--text2); }
+  tr:hover td { background: rgba(59,130,246,0.05); }
+  .shortcut-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+    gap: 8px;
+    margin: 12px 0;
+  }
+  .shortcut-item {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    padding: 8px 12px;
+    background: var(--bg2);
+    border-radius: 6px;
+    border: 1px solid var(--border);
+  }
+  .shortcut-key {
+    display: inline-block;
+    background: #334155;
+    padding: 2px 10px;
+    border-radius: 4px;
+    font-family: monospace;
+    font-size: 0.85em;
+    white-space: nowrap;
+    color: #f1d592;
+    min-width: 60px;
+    text-align: center;
+  }
+  .tag {
+    display: inline-block;
+    font-size: 0.75em;
+    padding: 1px 8px;
+    border-radius: 10px;
+    margin-left: 6px;
+    font-weight: 500;
+  }
+  .tag-new { background: #065f46; color: #6ee7b7; }
+  .tag-hotkey { background: #1e3a5f; color: #93c5fd; }
+  .note {
+    background: #1e293b;
+    border-left: 3px solid var(--accent);
+    padding: 12px 16px;
+    border-radius: 0 6px 6px 0;
+    margin: 16px 0;
+    font-size: 0.95em;
+  }
+  .note strong { color: var(--text); }
+  .toc { margin: 24px 0 32px; padding: 20px; background: var(--bg2); border-radius: 8px; }
+  .toc a { color: var(--accent); text-decoration: none; display: block; padding: 4px 0; }
+  .toc a:hover { text-decoration: underline; }
+  .toc .l2 { padding-left: 20px; }
+  .footer { margin-top: 60px; padding-top: 20px; border-top: 1px solid var(--border); text-align: center; color: var(--text2); font-size: 0.85em; }
+</style>
+</head>
+<body>
+
+<h1>🎧 影子跟读播放器</h1>
+<p>用户手册 — 版本 1.0.0</p>
+
+<div class="toc">
+<strong>目录</strong>
+<a href="#intro">一、简介</a>
+<a href="#quickstart" class="l2">快速开始</a>
+<a href="#features">二、功能详解</a>
+<a href="#playback" class="l2">2.1 音频播放</a>
+<a href="#subtitles" class="l2">2.2 字幕系统</a>
+<a href="#nav" class="l2">2.3 句子导航</a>
+<a href="#loop" class="l2">2.4 循环模式</a>
+<a href="#recording" class="l2">2.5 影子跟读录音</a>
+<a href="#export" class="l2">2.6 录音导出</a>
+<a href="#playlist" class="l2">2.7 播放列表</a>
+<a href="#shortcuts">三、快捷键一览</a>
+<a href="#srt">四、SRT 字幕格式</a>
+<a href="#tips">五、使用技巧</a>
+<a href="#troubleshoot">六、常见问题</a>
+</div>
+
+<!-- ============================================================ -->
+<h2 id="intro">一、简介</h2>
+<p>影子跟读播放器（Shadowing Player）是一款专为日语学习者设计的桌面音频播放工具，支持 SRT 字幕同步显示、句子级导航、多模式循环播放和录音导出。基于 Electron + React 构建，支持 Windows 系统。</p>
+
+<div class="note"><strong>核心功能：</strong> 音频播放 + 字幕同步 + 跟读录音 + 多格式导出</div>
+
+<h3 id="quickstart">快速开始</h3>
+<ol>
+  <li>双击 <code>影子跟读播放器.exe</code> 启动程序</li>
+  <li>点击「打开文件」选择 MP3/M4A/WAV 音频，或将文件拖拽到窗口</li>
+  <li>同目录的同名 <code>.srt</code> 字幕会自动加载（如有）</li>
+  <li>按 <kbd>空格</kbd> 播放/暂停，按 <kbd>↑</kbd><kbd>↓</kbd> 切换句子</li>
+</ol>
+
+<!-- ============================================================ -->
+<h2 id="features">二、功能详解</h2>
+
+<h3 id="playback">2.1 音频播放</h3>
+<table>
+  <tr><th>功能</th><th>说明</th></tr>
+  <tr><td>支持格式</td><td>MP3, M4A (AAC), WAV, OGG, FLAC</td></tr>
+  <tr><td>加载方式</td><td>点击「打开文件」、拖拽文件到窗口、加载文件夹</td></tr>
+  <tr><td>播放/暂停</td><td>点击播放按钮或按 <kbd>空格</kbd></td></tr>
+  <tr><td>进度控制</td><td>点击进度条跳转，自动开始播放</td></tr>
+  <tr><td>速度控制</td><td>7 档速度：0.50x ~ 2.00x，按数字键 <kbd>1</kbd>~<kbd>7</kbd> 快速切换</td></tr>
+</table>
+
+<h3 id="subtitles">2.2 字幕系统（SRT）</h3>
+<p>支持标准 SRT 格式字幕，具有以下特性：</p>
+<ul>
+  <li><strong>自动匹配：</strong> 加载音频时自动查找同目录下的同名 <code>.srt</code> 文件</li>
+  <li><strong>手动加载：</strong> 点击工具栏右侧「加载字幕」按钮</li>
+  <li><strong>振り仮名（ふりがな）：</strong> 使用 <code>{漢字|よみ}</code> 语法标注读音，自动渲染为 ruby 文字<span class="tag tag-new">始终显示</span></li>
+  <li><strong>隐藏/显示：</strong> 点击「字幕」按钮或按 <kbd>S</kbd> 切换</li>
+  <li><strong>当前句高亮：</strong> 播放中的句子自动高亮并滚动到视野中央</li>
+  <li><strong>点击跳转：</strong> 点击任意句子跳转至该句并自动播放</li>
+</ul>
+
+<h3 id="nav">2.3 句子导航</h3>
+<table>
+  <tr><th>操作</th><th>效果</th></tr>
+  <tr><td>按 <kbd>↑</kbd> / 点击后退</td><td>跳到上一句</td></tr>
+  <tr><td>按 <kbd>↓</kbd> / 点击前进</td><td>跳到下一句</td></tr>
+  <tr><td>智能后退</td><td>如果在当前句前 1 秒内按后退，则跳到上一句<span class="tag tag-hotkey">智能</span></td></tr>
+  <tr><td>点击字幕</td><td>跳转至该句并自动播放</td></tr>
+</table>
+
+<h3 id="loop">2.4 循环模式</h3>
+<p>循环模式选择器支持三种循环方式，循环区间会在进度条上以高亮显示：</p>
+<table>
+  <tr><th>模式</th><th>说明</th></tr>
+  <tr><td><strong>单句循环</strong></td><td>自动重复播放当前句子</td></tr>
+  <tr><td><strong>段落循环</strong></td><td>循环当前句及前后共 3 句</td></tr>
+  <tr><td><strong>A-B 循环</strong></td><td>用户自定义起点 A 和终点 B 之间的区间</td></tr>
+</table>
+
+<h3 id="recording">2.5 影子跟读录音</h3>
+<p>支持跟读练习的同步录音功能：</p>
+<ul>
+  <li><strong>开始录音：</strong> 点击「开始录音」或按 <kbd>R</kbd> 键</li>
+  <li><strong>录音延迟：</strong> 可调节 200ms ~ 1000ms 的延迟（默认 400ms），便于跟读节奏</li>
+  <li><strong>原声音量：</strong> 录音时可调节原音频的音量（0% ~ 100%）</li>
+  <li><strong>录音质量：</strong>
+    <ul>
+      <li><strong>标准：</strong> 44.1kHz，开启回声消除和降噪（适合普通环境）</li>
+      <li><strong>高质量：</strong> 48kHz 采样，128kbps Opus 码率，关闭 DSP 处理（推荐安静环境）</li>
+    </ul>
+  </li>
+  <li><strong>停止录音：</strong> 再次点击「停止录音」或按 <kbd>R</kbd> 键</li>
+</ul>
+
+<h3 id="export">2.6 录音导出</h3>
+<p>录音停止后，可选择导出格式：</p>
+<table>
+  <tr><th>格式</th><th>编码方式</th><th>说明</th></tr>
+  <tr><td>WebM</td><td>Opus 编码</td><td>原始录音格式，速度快，无损保留</td></tr>
+  <tr><td>WAV</td><td>PCM 16-bit</td><td>标准无损格式，兼容性最好</td></tr>
+  <tr><td>MP3</td><td>libmp3lame 128kbps</td><td>通过 ffmpeg 编码，体积小</td></tr>
+  <tr><td>M4A</td><td>AAC 128kbps</td><td>通过 ffmpeg 编码，高质量压缩</td></tr>
+</table>
+
+<h3 id="playlist">2.7 播放列表</h3>
+<ul>
+  <li><strong>加载文件夹：</strong> 点击「📁 加载文件夹」按钮选择音频目录</li>
+  <li><strong>侧边栏：</strong> 文件列表显示在左侧，点击「列表」按钮切换显示</li>
+  <li><strong>自动播放：</strong> 加载文件夹后自动播放第一个文件</li>
+  <li><strong>切换文件：</strong> 双击侧边栏文件，或按 <kbd>Ctrl+N</kbd>（下一个）/ <kbd>Ctrl+P</kbd>（上一个）</li>
+</ul>
+
+<!-- ============================================================ -->
+<h2 id="shortcuts">三、快捷键一览</h2>
+
+<div class="shortcut-grid">
+  <div class="shortcut-item"><span class="shortcut-key">空格</span> 播放 / 暂停</div>
+  <div class="shortcut-item"><span class="shortcut-key">↑</span> 上一句</div>
+  <div class="shortcut-item"><span class="shortcut-key">↓</span> 下一句</div>
+  <div class="shortcut-item"><span class="shortcut-key">S</span> 切换字幕显示</div>
+  <div class="shortcut-item"><span class="shortcut-key">L</span> 切换循环模式</div>
+  <div class="shortcut-item"><span class="shortcut-key">R</span> 开始 / 停止录音</div>
+  <div class="shortcut-item"><span class="shortcut-key">Ctrl+O</span> 打开音频文件</div>
+  <div class="shortcut-item"><span class="shortcut-key">Ctrl+N</span> 播放列表下一个</div>
+  <div class="shortcut-item"><span class="shortcut-key">Ctrl+P</span> 播放列表上一个</div>
+  <div class="shortcut-item"><span class="shortcut-key">1~7</span> 速度 0.50x ~ 2.00x</div>
+</div>
+
+<!-- ============================================================ -->
+<h2 id="srt">四、SRT 字幕格式</h2>
+<p>支持标准 SRT 格式，并扩展了振り仮名和多行显示语法。</p>
+
+<h3>基本 SRT 格式</h3>
+<pre>1
+00:00:01,500 --> 00:00:05,000
+今日はいい天気ですね。
+
+2
+00:00:06,000 --> 00:00:10,500
+{明日|あした}も{晴|は}れるでしょう。</pre>
+
+<h3>振り仮名语法</h3>
+<p>使用 <code>{漢字|よみ}</code> 标注汉字的假名读音：</p>
+<pre>{今日|きょう}は{本当|ほんとう}に{難|むずか}しいです。</pre>
+
+<h3>多行显示（预留语法）</h3>
+<p>SRT 字幕行可用管道符 <code>|</code> 分隔日文、罗马字和中文翻译：</p>
+<pre>{天気|てんき}がいいですね。|Tenki ga ii desu ne.|天气真好啊。</pre>
+
+<!-- ============================================================ -->
+<h2 id="tips">五、使用技巧</h2>
+
+<ul>
+  <li><strong>跟读练习流程：</strong> 先加载音频和字幕 → 调节合适速度 → 播放 → 按 <kbd>↑</kbd><kbd>↓</kbd> 逐句练习 → 开启录音做影子跟读 → 导出对比</li>
+  <li><strong>智能后退：</strong> 练习时想重听当前句，按后退即可回到句首；如果在句首附近按后退，则跳到上一句，适合连续跟读训练</li>
+  <li><strong>录高质量：</strong> 在安静环境下选择「高质量」模式录制，获得更纯净的声音</li>
+  <li><strong>导出格式选择：</strong> 练习录音选 WebM 最快，分享给他人选 MP3 最通用，存档选 WAV 最保真</li>
+  <li><strong>批量练习：</strong> 把一课的所有 MP3 放在一个文件夹里，用「加载文件夹」一次性加载，逐课练习</li>
+</ul>
+
+<!-- ============================================================ -->
+<h2 id="troubleshoot">六、常见问题</h2>
+
+<h3>Q: 音频无法加载？</h3>
+<p>A: 确保音频格式为 MP3、M4A、WAV、OGG 或 FLAC。首次使用可能需要关闭杀毒软件或添加信任。</p>
+
+<h3>Q: 字幕没有自动加载？</h3>
+<p>A: 确保 SRT 文件与音频文件在<strong>同一目录</strong>，且文件名<strong>完全相同</strong>（仅扩展名不同）。例如 <code>01鉄道.mp3</code> 匹配 <code>01鉄道.srt</code>。</p>
+
+<h3>Q: 录音没有声音？</h3>
+<p>A: 确保系统麦克风权限已开启。Windows 设置 → 隐私和安全性 → 麦克风 → 允许应用访问。</p>
+
+<h3>Q: 导出 MP3/M4A 失败？</h3>
+<p>A: 程序会自动回退为 WAV 格式保存。如果经常失败，请检查 <code>ffmpeg-static</code> 是否完整。</p>
+
+<h3>Q: 如何分享给朋友？</h3>
+<p>A: 将 <code>release\win-unpacked</code> 整个文件夹压缩后发给对方，解压后直接运行 <code>影子跟读播放器.exe</code> 即可。无需安装。</p>
+
+<h3>Q: 窗口标题栏不见了？</h3>
+<p>A: 这是自定义的无边框窗口设计。可通过顶部拖拽移动窗口，使用窗口控制按钮（最小化/最大化/关闭）。</p>
+
+<div class="footer">
+  <p>影子跟读播放器 v1.0.0 | 基于 Electron + React + TypeScript + Tailwind CSS</p>
+  <p>SRT 字幕生成工具请见 <code>srtGenerator/</code> 目录</p>
+</div>
+
+</body>
+</html>

@@ -27,12 +27,31 @@ The system SHALL provide play/pause controls for the loaded audio.
 - **WHEN** user clicks the pause button or presses Space during playback
 - **THEN** system pauses playback at the current position
 
+### Requirement: Load audio folder (playlist)
+The system SHALL allow the user to load an entire folder of audio files as a playlist.
+
+#### Scenario: Load via folder dialog
+- **WHEN** user clicks "加载文件夹" button
+- **THEN** in Electron mode, system opens a native folder selection dialog
+- **THEN** system scans the selected folder for audio files (.mp3, .m4a, .wav, .ogg, .flac)
+- **THEN** system creates a playlist sorted alphabetically
+- **THEN** system auto-plays the first file and shows the playlist sidebar
+
+#### Scenario: Navigate playlist
+- **WHEN** user double-clicks a file in the playlist sidebar
+- **THEN** system loads and plays that file
+- **WHEN** user presses Ctrl+N
+- **THEN** system plays the next file in the playlist
+- **WHEN** user presses Ctrl+P
+- **THEN** system plays the previous file in the playlist
+
 ### Requirement: Seek to position
 The system SHALL allow the user to seek to any position in the audio via a progress bar.
 
 #### Scenario: Click on progress bar
 - **WHEN** user clicks on the progress bar at a specific position
 - **THEN** system seeks the audio to that corresponding time position
+- **THEN** system starts playback automatically
 
 #### Scenario: Drag progress bar thumb
 - **WHEN** user drags the progress bar thumb to a new position

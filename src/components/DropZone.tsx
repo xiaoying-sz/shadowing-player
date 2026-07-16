@@ -1,15 +1,12 @@
-import React, { useCallback, useState, useRef } from 'react';
+import { useCallback, useState } from 'react';
 
 interface DropZoneProps {
   onDrop: (filePath: string, fileName: string, file?: File) => void;
   onOpenAudio: () => void;
-  /** For browser mode: directly handle file selection */
-  onFileSelected?: (file: File) => void;
 }
 
-export function DropZone({ onDrop, onOpenAudio, onFileSelected }: DropZoneProps) {
+export function DropZone({ onDrop, onOpenAudio }: DropZoneProps) {
   const [isDragOver, setIsDragOver] = useState(false);
-  const fileInputRef = useRef<HTMLInputElement>(null);
 
   const handleDragOver = useCallback((e: React.DragEvent) => {
     e.preventDefault();
@@ -39,26 +36,6 @@ export function DropZone({ onDrop, onOpenAudio, onFileSelected }: DropZoneProps)
     [onDrop]
   );
 
-  const handleButtonClick = useCallback(() => {
-    if (onFileSelected) {
-      fileInputRef.current?.click();
-    } else {
-      onOpenAudio();
-    }
-  }, [onFileSelected, onOpenAudio]);
-
-  const handleFileChange = useCallback((e: React.ChangeEvent<HTMLInputElement>) => {
-    const file = e.target.files?.[0];
-    if (file && onFileSelected) {
-      onFileSelected(file).catch((err: Error) => {
-        console.error('[DropZone] File selection handler error:', err);
-      });
-    }
-    if (fileInputRef.current) {
-      fileInputRef.current.value = '';
-    }
-  }, [onFileSelected]);
-
   return (
     <div
       onDragOver={handleDragOver}
@@ -79,7 +56,7 @@ export function DropZone({ onDrop, onOpenAudio, onFileSelected }: DropZoneProps)
       <p className="text-sm text-gray-500 mb-4">支持 MP3, M4A, WAV, OGG, FLAC</p>
       <div className="flex items-center gap-3">
         <button
-          onClick={handleButtonClick}
+          onClick={onOpenAudio}
           className="rounded-lg bg-blue-600 px-5 py-2 text-sm font-medium text-white hover:bg-blue-500 transition-colors"
         >
           选择音频文件
@@ -88,14 +65,6 @@ export function DropZone({ onDrop, onOpenAudio, onFileSelected }: DropZoneProps)
       <p className="mt-4 text-xs text-gray-600">
         同名 SRT 字幕文件将自动加载
       </p>
-      {/* Hidden file input for browser mode */}
-      <input
-        ref={fileInputRef}
-        type="file"
-        accept="audio/mpeg,audio/mp4,audio/wav,audio/ogg,audio/flac,.mp3,.m4a,.wav,.ogg,.flac"
-        onChange={handleFileChange}
-        className="hidden"
-      />
     </div>
   );
 }

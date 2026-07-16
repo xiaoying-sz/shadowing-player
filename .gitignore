@@ -6,3 +6,20 @@ release/
 .env
 .DS_Store
 Thumbs.db
+
+# Python virtual environment
+.venv/
+__pycache__/
+*.pyc
+*.pyo
+
+# Python ML models (large binary files)
+srtGenerator/models/*/model.bin
+srtGenerator/models/.cache/
+srtGenerator/models/models--*/
+
+# OS files
+Desktop.ini
+*.swp
+*.swo
+*~

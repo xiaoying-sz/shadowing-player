@@ -13,50 +13,19 @@ The system SHALL render Japanese kanji with furigana readings using HTML ruby an
 - **THEN** system renders ruby segments with furigana and plain segments as normal text
 - **THEN** the overall text flows naturally as a single line
 
-### Requirement: Toggle furigana visibility
-The system SHALL allow the user to show or hide furigana ruby text.
+### ~~Requirement: Toggle furigana visibility~~ **REMOVED**
+Furigana ruby text is **always visible**. The toggle button and F key shortcut have been removed.
 
-#### Scenario: Hide furigana
-- **WHEN** user toggles furigana off
-- **THEN** system hides the ruby text readings
-- **THEN** kanji characters remain visible without readings above them
+### ~~Requirement: Subtitle display mode switching~~ **REMOVED**
+Display mode selector (日本語 / +ローマ字 / +中文訳 / 全部表示) has been removed. Subtitles always display in pure Japanese mode. The DisplayModeSelector component and related CSS classes have been deleted.
 
-#### Scenario: Show furigana
-- **WHEN** user toggles furigana on
-- **THEN** system displays ruby text readings above kanji characters
-
-### Requirement: Subtitle display mode switching
-The system SHALL support multiple display modes for subtitle text.
-
-#### Scenario: Cycle through display modes
-- **WHEN** user presses M key or clicks the display mode button
-- **THEN** system cycles through available modes
-
-#### Scenario: Mode 1 — 日本語 only
-- **WHEN** display mode is set to "日本語"
-- **THEN** system shows only the Japanese text line (with optional furigana)
-
-#### Scenario: Mode 2 — 日本語 + ローマ字
-- **WHEN** display mode is set to "日本語 + ローマ字"
-- **THEN** system shows the Japanese text line followed by its romaji (Latin alphabet) representation on a second line
-
-#### Scenario: Mode 3 — 日本語 + 中文訳
-- **WHEN** display mode is set to "日本語 + 中文訳"
-- **THEN** system shows the Japanese text line followed by its Chinese translation on a second line
-
-#### Scenario: Mode 4 — 全部表示 (all)
-- **WHEN** display mode is set to "全部表示"
-- **THEN** system shows all three lines stacked: Japanese text, romaji, and Chinese translation
-
-### Requirement: Subtitle source format for multi-mode display
-The SRT text SHALL use pipe character `|` to separate Japanese text, romaji, and Chinese translation for multi-mode display.
+### Requirement: Subtitle source format
+SRT files may still use pipe character `|` to delimit Japanese text, romaji, and Chinese translation. The parser stores all segments, but the display always renders the Japanese portion.
 
 #### Scenario: Parse multi-line SRT entry
 - **WHEN** an SRT subtitle entry contains: `{今日|きょう}はいい天気ですね。|Kyou wa ii tenki desu ne.|今天天气真好呢。`
-- **THEN** system splits by `|` and assigns:
-  - Part 1: Japanese text with furigana markers
-  - Part 2: Romaji transliteration
-  - Part 3: Chinese translation
+- **THEN** system splits by `|` and stores all parts in SubtitlePart
+- **THEN** only the first segment (Japanese text with furigana) is displayed
 
 ### Requirement: Toggle subtitle visibility
 The system SHALL allow the user to completely show or hide the subtitle panel.

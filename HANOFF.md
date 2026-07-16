@@ -1,7 +1,7 @@
 # Handoff Document — Japanese Shadowing Player (日本語シャドーイング)
 
 > 此文档供 AI 工具在新会话中恢复上下文时使用。
-> 项目路径：`D:\CodingAgent\language-player`
+> 项目路径：`./language-player`
 
 ---
 
@@ -14,7 +14,7 @@ Electron + React + TypeScript 桌面应用，专为日语学习者设计的**影
 | 技术栈 | Electron 43, React 19, TypeScript 7, Vite 8, Tailwind CSS v4 |
 | 构建工具 | Vite (前端), tsc (Electron 主进程), electron-builder (打包) |
 | 目标平台 | Windows (NSIS 安装包), 未来支持 macOS DMG |
-| 项目路径 | `D:\CodingAgent\language-player\` |
+| 项目路径 | `./language-player` |
 | OpenSpec 文档 | `openspec/changes/japanese-shadowing-player/` |
 
 ---

@@ -8,9 +8,18 @@ export class RecorderService {
   private _onStateChange: ((state: RecordingState) => void) | null = null;
   private _onDataAvailable: ((blob: Blob) => void) | null = null;
   private recordingStartTime = 0;
+  private _highQuality = false;
 
   get state(): RecordingState {
     return this._state;
+  }
+
+  get highQuality(): boolean {
+    return this._highQuality;
+  }
+
+  setHighQuality(enabled: boolean): void {
+    this._highQuality = enabled;
   }
 
   onStateChange(cb: (state: RecordingState) => void): void {
@@ -35,7 +44,13 @@ export class RecorderService {
   async start(): Promise<boolean> {
     try {
       this.stream = await navigator.mediaDevices.getUserMedia({
-        audio: {
+        audio: this._highQuality ? {
+          sampleRate: 48000,
+          channelCount: 1,
+          echoCancellation: false,
+          noiseSuppression: false,
+          autoGainControl: false,
+        } : {
           echoCancellation: true,
           noiseSuppression: true,
           sampleRate: 44100,
@@ -46,7 +61,10 @@ export class RecorderService {
         ? 'audio/webm;codecs=opus'
         : 'audio/webm';
 
-      this.mediaRecorder = new MediaRecorder(this.stream, { mimeType });
+      this.mediaRecorder = new MediaRecorder(this.stream, {
+        mimeType,
+        audioBitsPerSecond: this._highQuality ? 128000 : undefined,
+      });
       this.chunks = [];
 
       this.mediaRecorder.ondataavailable = (event) => {
@@ -58,6 +76,8 @@ export class RecorderService {
       this.mediaRecorder.onstop = () => {
         const blob = new Blob(this.chunks, { type: mimeType });
         this._onDataAvailable?.(blob);
+        this._state = 'done';
+        this._onStateChange?.('done');
         this.stream?.getTracks().forEach((t) => t.stop());
         this.stream = null;
       };
@@ -77,15 +97,6 @@ export class RecorderService {
   stop(): Blob | null {
     if (this.mediaRecorder && this.mediaRecorder.state !== 'inactive') {
       this.mediaRecorder.stop();
-      this._state = 'done';
-      this._onStateChange?.('done');
-
-      if (this.chunks.length > 0) {
-        const mimeType = MediaRecorder.isTypeSupported('audio/webm;codecs=opus')
-          ? 'audio/webm;codecs=opus'
-          : 'audio/webm';
-        return new Blob(this.chunks, { type: mimeType });
-      }
     }
     return null;
   }

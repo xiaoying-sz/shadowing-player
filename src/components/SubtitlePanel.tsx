@@ -1,4 +1,4 @@
-import React, { useRef, useEffect } from 'react';
+import { useRef, useEffect } from 'react';
 import { usePlayer } from '../context/PlayerContext';
 import { RubyText } from './RubyText';
 
@@ -7,7 +7,6 @@ export function SubtitlePanel() {
     sentences,
     currentSentence,
     displayMode,
-    showFurigana,
     showSubtitles,
     isSubtitleLoaded,
     loadSubtitle,
@@ -68,7 +67,7 @@ export function SubtitlePanel() {
           >
             {sentence.parts.map((line, li) => (
               <div key={li} className={`${isActive ? 'text-white' : 'text-gray-300'} leading-relaxed`}>
-                <RubyText parts={line} displayMode={displayMode} showFurigana={showFurigana} />
+                <RubyText parts={line} displayMode={displayMode} />
               </div>
             ))}
             {isActive && (

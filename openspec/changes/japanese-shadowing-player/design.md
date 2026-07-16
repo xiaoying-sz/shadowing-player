@@ -1,6 +1,6 @@
 ## Context
 
-This is a new Electron + React + TypeScript desktop application for Japanese shadowing practice. The application will be created at `D:\CodingAgent\language-player\` as a standalone project, independent of the current workspace at `D:\ClaudeCode\GR&SB\`.
+This is a new Electron + React + TypeScript desktop application for Japanese shadowing practice. The application is a standalone desktop project for Windows.
 
 The application targets Windows as the primary platform (NSIS installer). It is fully offline capable with no external API dependencies.
 
@@ -10,13 +10,13 @@ The application targets Windows as the primary platform (NSIS installer). It is 
 - Provide audio playback (MP3, M4A, WAV) with precise position control
 - Enable speed control from 0.5x to 2.0x in 0.25x increments (7 levels)
 - Parse and display SRT subtitle files, synchronized with audio position
-- Render Japanese furigana (ruby text) on subtitle display
-- Support multiple subtitle display modes (日本語, +ローマ字, +中文訳, all combined)
+- Render Japanese furigana (ruby text) on subtitle display (always visible)
 - Allow toggling subtitle visibility on/off at any time
 - Navigate to previous/next sentence using subtitle timing data
 - Support three loop modes: single sentence, paragraph (contiguous sentences), custom A-B region
-- Provide one-click shadow recording with adjustable delay (200–1000ms, default 400ms)
-- Export recorded shadow audio as standalone WAV or stereo mixed comparison file
+- Provide folder loading with playlist sidebar for batch practice
+- Provide one-click shadow recording with adjustable delay (200–1000ms, default 400ms) and quality toggle
+- Export recorded shadow audio in multiple formats: WebM, WAV, MP3, M4A (via ffmpeg)
 - Support full keyboard shortcuts for efficient practice flow
 - Package as Windows installer via electron-builder NSIS
 
@@ -69,12 +69,14 @@ Furigana syntax convention within SRT text:
 ```
 Renderer splits text segments, converting `{kanji|reading}` pairs to `<ruby>` HTML tags.
 
-### Decision 4: MediaRecorder API for shadow recording
+### Decision 4: MediaRecorder API for shadow recording + ffmpeg for export
 
 - Built into Chromium runtime, no native module installation
-- Supports WAV audio capture via audio/webm codec
-- Blob export can be converted to WAV or MP3 via AudioContext
-- Mixed export: use OfflineAudioContext to merge original audio and recorded track
+- Captures audio via audio/webm;codecs=opus format
+- Export: decode WebM blob to PCM via OfflineAudioContext, then:
+  - WAV: encode PCM to WAV in renderer
+  - MP3/M4A: send PCM WAV data to main process via IPC, convert using ffmpeg (ffmpeg-static + fluent-ffmpeg)
+- Quality toggle: standard (44.1kHz + echo cancellation) or high (48kHz + 128kbps Opus, no processing)
 
 ### Decision 5: Step-based speed selector over continuous slider
 
@@ -89,7 +91,23 @@ Japanese is a mora-timed (拍) language, unlike stress-timed English. Research o
 
 ### Decision 7: Project location separate from workspace
 
-The application code resides at `D:\CodingAgent\language-player\` while openspec artifacts stay at `D:\ClaudeCode\GR&SB\openspec\changes\japanese-shadowing-player\`. This keeps the application independent while using the existing workspace's openspec workflow for project management.
+The application code and openspec artifacts are co-located in the same repository for simplified project management.
+
+### Decision 8: Toolbar simplification
+
+After development, the toolbar was simplified by removing:
+- Furigana toggle button (furigana always visible)
+- Display mode selector (日本語 / +ローマ字 / +中文訳 / 全部表示)
+
+This reduces UI clutter since the primary use case is Japanese-only shadowing practice. The SRT parser still supports pipe-delimited romaji/translation data for future use.
+
+### Decision 9: ffmpeg-static for audio conversion
+
+- `ffmpeg-static` bundles a static ffmpeg binary for Windows (~30MB in node_modules, not in the app bundle)
+- Used in Electron main process via `fluent-ffmpeg` for MP3 (libmp3lame) and M4A (AAC) encoding
+- Renderer sends PCM WAV data to main process via IPC
+- Main process saves temp WAV, converts via ffmpeg, saves to final path, cleans up temp file
+- Fallback: if conversion fails, saves as WAV instead
 
 ## Architecture
 
